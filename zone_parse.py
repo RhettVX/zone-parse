@@ -1,7 +1,8 @@
-from struct_reader import *
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import List
 
+from struct_reader import *
 
 _MAGIC = b'ZONE'
 _VERSION = 0x1
@@ -20,6 +21,7 @@ class Eco:
 class Zone1:
     name: str = field()
     path: Path = field()
+    ecos: List[Eco] = field()
 
     unk_block: bytes = field(repr=False)
 
@@ -60,9 +62,16 @@ class Zone1:
             self.chunks_y = reader.uint32LE()
             self.eco_count = reader.uint32LE()
 
-            reader.seek(4, 1)
-            test = reader.ztstring()
-            pass
+            self.ecos = []
+            for c in range(self.eco_count):
+                u = reader.uint32LE()
+
+                name = reader.ztstring()
+                cnxmap = reader.ztstring()
+                snymap = reader.ztstring()
+
+                self.ecos.append(Eco(name, cnxmap, snymap, u))
+                break
 
 
 if __name__ == '__main__':

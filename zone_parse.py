@@ -5,17 +5,23 @@ from struct_reader import *
 
 _MAGIC = b'ZONE'
 _VERSION = 0x1
+_MAX_FLOAT = 6
 
 
 @dataclass
 class Eco:
-    name: str = field()
-    color_nx_map: str = field()
-    spec_ny_map: str = field()
-    detail_repeat: int = field()
-    blend_strength: float = field()
+    name: str = field(default='')
+    color_nx_map: str = field(default='')
+    spec_blend_ny_map: str = field(default='')
+    detail_repeat: int = field(default=0)
+    blend_strength: float = field(default=0.0)
+    spec_min: float = field(default=0.0)
+    spec_max: float = field(default=0.0)
+    spec_smoothness_min: float = field(default=0.0)
+    spec_smoothness_max: float = field(default=0.0)
+    physics_material: str = field(default='')
 
-    unk0: int = field()
+    unk0: int = field(default=0)
 
 
 @dataclass
@@ -65,16 +71,21 @@ class Zone1:
 
             self.ecos = []
             for c in range(self.eco_count):
-                u = reader.uint32LE()
+                eco = Eco()
 
-                name = reader.ztstring()
-                cnxmap = reader.ztstring()
-                snymap = reader.ztstring()
-                drepeat = reader.uint32LE()
-                bstrength = reader.float32LE()
+                eco.unk0 = reader.uint32LE()
+                eco.name = reader.ztstring()
+                eco.color_nx_map = reader.ztstring()
+                eco.spec_blend_ny_map = reader.ztstring()
+                eco.detail_repeat = reader.uint32LE()
+                eco.blend_strength = round(reader.float32LE(), _MAX_FLOAT)
+                eco.spec_min = round(reader.float32LE(), _MAX_FLOAT)
+                eco.spec_max = round(reader.float32LE(), _MAX_FLOAT)
+                eco.spec_smoothness_min = round(reader.float32LE(), _MAX_FLOAT)
+                eco.spec_smoothness_max = round(reader.float32LE(), _MAX_FLOAT)
+                eco.physics_material = reader.ztstring()
 
-                self.ecos.append(Eco(name, cnxmap, snymap,
-                                     drepeat, bstrength, u))
+                self.ecos.append(eco)
                 break
 
 

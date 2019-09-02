@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import List
 
 from struct_reader import *
@@ -13,6 +12,8 @@ class Eco:
     name: str = field()
     color_nx_map: str = field()
     spec_ny_map: str = field()
+    detail_repeat: int = field()
+    blend_strength: float = field()
 
     unk0: int = field()
 
@@ -69,8 +70,11 @@ class Zone1:
                 name = reader.ztstring()
                 cnxmap = reader.ztstring()
                 snymap = reader.ztstring()
+                drepeat = reader.uint32LE()
+                bstrength = reader.float32LE()
 
-                self.ecos.append(Eco(name, cnxmap, snymap, u))
+                self.ecos.append(Eco(name, cnxmap, snymap,
+                                     drepeat, bstrength, u))
                 break
 
 

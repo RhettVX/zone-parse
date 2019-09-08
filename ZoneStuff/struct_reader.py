@@ -9,6 +9,8 @@ class BinaryStructReader(BufferedReader):
     """
     path: Path
 
+    _uint8 = Struct('B')
+
     # Big-endian structs
     _uint32BE = Struct('>I')
     _uint64BE = Struct('>Q')
@@ -30,6 +32,9 @@ class BinaryStructReader(BufferedReader):
         else:
             return unpacked
 
+    def uint8(self):
+        return self._read_struct(self._uint8)
+
     def uint32LE(self):
         return self._read_struct(self._uint32LE)
 
@@ -45,7 +50,9 @@ class BinaryStructReader(BufferedReader):
     def int32LE(self):
         return self._read_struct(self._int32LE)
 
-    def float32LE(self):
+    def float32LE(self, round_max=None):
+        if round_max:
+            return round(self._read_struct(self._float32LE), round_max)
         return self._read_struct(self._float32LE)
 
     def ztstring(self):

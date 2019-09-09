@@ -10,6 +10,7 @@ class BinaryStructReader(BufferedReader):
     path: Path
 
     _uint8 = Struct('B')
+    _bool8 = Struct('?')
 
     # Big-endian structs
     _uint32BE = Struct('>I')
@@ -34,6 +35,9 @@ class BinaryStructReader(BufferedReader):
 
     def uint8(self):
         return self._read_struct(self._uint8)
+
+    def bool8(self):
+        return self._read_struct(self._bool8)
 
     def uint32LE(self):
         return self._read_struct(self._uint32LE)

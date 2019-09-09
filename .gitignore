@@ -104,3 +104,4 @@ venv.bak/
 .mypy_cache/
 /activate
 /scratch.py
+/test.txt

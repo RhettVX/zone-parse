@@ -2,8 +2,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List
 
-from .eco import Eco
-from .layer import Layer, Tint
+from ZoneStuff.eco import Eco, Layer, Tint
 from .struct_reader import BinaryStructReader
 
 _MAGIC = b'ZONE'
@@ -11,6 +10,7 @@ _VERSION = 0x1
 _MAX_FLOAT = 6
 
 
+# TODO: Move behavior for reading ecos to their respective classes
 @dataclass()
 class Zone1:
     path: Path = field()

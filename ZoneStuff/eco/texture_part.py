@@ -7,8 +7,6 @@ _MAX_FLOAT = 6
 
 @dataclass()
 class TexturePart:
-    unk0: int = field(repr=False)
-
     name: str = field()
     color_nx_map: str = field()
     spec_blend_ny_map: str = field()
@@ -21,7 +19,6 @@ class TexturePart:
     physics_material: str = field()
 
     def __init__(self, reader: BinaryStructReader):
-        self.unk0 = reader.uint32LE()
         self.name = reader.ztstring()
         self.color_nx_map = reader.ztstring()
         self.spec_blend_ny_map = reader.ztstring()

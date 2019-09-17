@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Tuple
 
-from ..struct_reader import BinaryStructReader
+from ..util.struct_reader import BinaryStructReader
 
 
 @dataclass()

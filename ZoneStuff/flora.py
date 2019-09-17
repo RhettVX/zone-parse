@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from .struct_reader import BinaryStructReader
+from .util.struct_reader import BinaryStructReader
 
 _MAX_FLOAT = 6
 

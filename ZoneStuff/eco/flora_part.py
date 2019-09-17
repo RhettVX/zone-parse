@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import List
 
 from .layer import Layer
-from ..struct_reader import BinaryStructReader
+from ..util.struct_reader import BinaryStructReader
 
 _MAX_FLOAT = 6
 

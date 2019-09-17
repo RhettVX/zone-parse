@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 from .flora_part import FloraPart
 from .texture_part import TexturePart
-from ..struct_reader import BinaryStructReader
+from ..util.struct_reader import BinaryStructReader
 
 
 @dataclass()

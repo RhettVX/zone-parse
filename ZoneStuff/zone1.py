@@ -6,6 +6,7 @@ from lxml.etree import tostring
 
 from .eco import Eco
 from .flora import Flora
+from .runtime_object.runtime_object import RuntimeObject
 from .util.struct_reader import BinaryStructReader
 from .util.xml_binary import *
 
@@ -42,7 +43,8 @@ class Zone1:
     flora_count: int = field()
     floras: List[Flora] = field()
 
-    # object_count: int = field()
+    object_count: int = field()
+    runtime_objects: List[RuntimeObject] = field()
 
     # TODO
     def export_xml(self, name: str, outdir: Path):
@@ -69,6 +71,8 @@ class Zone1:
         section_ecos = element_section(root, 'ecos')
         for e in self.ecos:
             eco = SubElement(section_ecos, 'eco')
+
+            # TexturePart
             section_texture_part = element_section(eco, 'texture_part')
             tp = e.texture_part
             element_string(section_texture_part, tp.name, 'name')
@@ -81,9 +85,46 @@ class Zone1:
             element_float(section_texture_part, tp.spec_smoothness_min, 'spec_smoothness_min')
             element_float(section_texture_part, tp.spec_smoothness_max, 'spec_smoothness_max')
             element_string(section_texture_part, tp.physics_material, 'physics_material')
-            break
 
-        print(tostring(root, pretty_print=True).decode('utf8'))
+            # FloraPart
+            section_flora_part = element_section(eco, 'flora_part')
+            for l in e.flora_part.layers:
+                layer = SubElement(section_flora_part, 'layer')
+
+                element_float(layer, l.density, 'density')
+                element_float(layer, l.min_scale, 'min_scale')
+                element_float(layer, l.max_scale, 'max_scale')
+                element_float(layer, l.slope_peak, 'slope_peak')
+                element_float(layer, l.slope_extent, 'slope_extent')
+                element_float(layer, l.min_elevation, 'min_elevation')
+                element_float(layer, l.max_elevation, 'max_elevation')
+                element_int(layer, l.min_alpha, 'min_alpha')
+                element_string(layer, l.flora_name, 'flora_name')
+
+                section_tints = element_section(layer, 'tints')
+                for t in l.tints:
+                    tint = SubElement(section_tints, 'tint')
+
+                    element_rgba(tint, *t.color_rgba, 'color_rgba')
+                    element_int(tint, t.strength, 'strength')
+
+        # Floras
+        section_floras = element_section(root, 'floras')
+        for f in self.floras:
+            flora = SubElement(section_floras, 'flora')
+
+            element_string(flora, f.name, 'name')
+            element_string(flora, f.texture, 'texture')
+            element_string(flora, f.model, 'model')
+            element_bool(flora, f.unk_bool0, 'unk_bool0')
+            element_float(flora, f.unk_float0, 'unk_float0')
+            element_float(flora, f.unk_float1, 'unk_float1')
+
+        # InvisWalls  TODO: Skipped for now since this zone doesn't have any
+
+        # RuntimeObjects
+
+        # print(tostring(root, pretty_print=True).decode('utf8'))
         Path('zone_xml.xml').write_text(tostring(root, pretty_print=True).decode('utf8'))
 
     def __init__(self, path: Path):
@@ -134,6 +175,13 @@ class Zone1:
             # TODO: Handle invisible walls when we find some
             print('INVIS_WALLS', reader.tell())
             assert reader.uint32LE() == 0, 'There are invis walls here. Handle them'
+
+            print('RUN_OBJECTS', reader.tell())
+            self.object_count = reader.uint32LE()
+            self.runtime_objects = []
+            for _ in range(self.object_count):
+                self.runtime_objects.append(RuntimeObject(reader))
+                break
 
             # TODO: Finish object notes
             print('END POS:', reader.tell())

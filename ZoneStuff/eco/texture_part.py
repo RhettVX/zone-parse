@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Dict
 
 from ..util.struct_reader import BinaryStructReader
 
@@ -29,3 +30,18 @@ class TexturePart:
         self.spec_smoothness_min = reader.float32LE(_MAX_FLOAT)
         self.spec_smoothness_max = reader.float32LE(_MAX_FLOAT)
         self.physics_material = reader.ztstring()
+
+    def asdict(self) -> Dict:
+        output = {
+            'name': self.name,
+            'color_nx_map': self.color_nx_map,
+            'spec_blend_ny_map': self.spec_blend_ny_map,
+            'detail_repeat': self.detail_repeat,
+            'blend_strength': self.blend_strength,
+            'spec_min': self.spec_min,
+            'spec_max': self.spec_max,
+            'spec_smoothness_min': self.spec_smoothness_min,
+            'spec_smoothness_max': self.spec_smoothness_max,
+            'physics_material': self.physics_material
+        }
+        return output

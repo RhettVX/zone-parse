@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Dict
 
 from .flora_part import FloraPart
 from .texture_part import TexturePart
@@ -17,3 +18,10 @@ class Eco:
 
         self.texture_part = TexturePart(reader)
         self.flora_part = FloraPart(reader)
+
+    def asdict(self) -> Dict:
+        output = {
+            'texture_part': self.texture_part.asdict(),
+            'flora_part': self.flora_part.asdict()
+        }
+        return output

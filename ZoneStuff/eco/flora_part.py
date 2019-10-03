@@ -18,3 +18,9 @@ class FloraPart:
 
         for _ in range(self.layer_count):
             self.layers.append(Layer(reader))
+
+    def asdict(self):
+        output = {
+            'layers': [x.asdict() for x in self.layers]
+        }
+        return output

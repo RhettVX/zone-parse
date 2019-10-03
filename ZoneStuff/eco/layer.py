@@ -37,3 +37,17 @@ class Layer:
         self.tints = []
         for _ in range(self.tint_count):
             self.tints.append(Tint(reader))
+
+    def asdict(self):
+        output = {
+            'density': self.density,
+            'min_scale': self.min_scale,
+            'max_scale': self.max_scale,
+            'slope_peak': self.slope_peak,
+            'slope_extent': self.slope_extent,
+            'min_elevation': self.min_elevation,
+            'max_elevation': self.max_elevation,
+            'min_alpha': self.min_alpha,
+            'flora_name': self.flora_name
+        }
+        return output

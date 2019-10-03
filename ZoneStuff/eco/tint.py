@@ -17,3 +17,15 @@ class Tint:
 
         self.color_rgba = (r, g, b, a)
         self.strength = reader.uint32LE()
+
+    def asdict(self):
+        output = {
+            'color': {
+                'r': self.color_rgba[0],
+                'g': self.color_rgba[1],
+                'b': self.color_rgba[2],
+                'a': self.color_rgba[3]
+            },
+            'strength': self.strength
+        }
+        return output

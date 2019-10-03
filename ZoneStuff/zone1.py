@@ -19,7 +19,6 @@ class Zone1:
     name: str = field()
 
     # TODO
-    # offset_block: bytes = field(repr=False)
     offsets: dict
 
     quads_per_tile: int = field()
@@ -60,7 +59,10 @@ class Zone1:
             'start_y': self.start_y,
             'chunks_x': self.chunks_x,
             'chunks_y': self.chunks_y,
-            'ecos': [x.asdict() for x in self.ecos]
+            'ecos': [x.asdict() for x in self.ecos],
+            'floras': [x.asdict() for x in self.floras],
+            # TODO: InvisWalls
+            'objects': [x.asdict() for x in self.objects]
         }
 
         with (outdir / name).open('w') as outfile:
@@ -81,7 +83,6 @@ class Zone1:
             #     'invis_walls': reader.uint32LE()
             # }
             reader.seek(4 * 6, 1)
-            # self.offset_block_block = reader.read(24)
 
             self.quads_per_tile = reader.uint32LE()
             self.tile_size = reader.float32LE()
@@ -99,7 +100,6 @@ class Zone1:
             self.eco_count = reader.uint32LE()
             self.ecos = []
             for _ in range(self.eco_count):
-                # print(reader.tell())
                 self.ecos.append(Eco(reader))
 
             # Floras
@@ -113,12 +113,11 @@ class Zone1:
             print('INVIS_WALLS', reader.tell())
             assert reader.uint32LE() == 0, 'There are invis walls here. Handle them'
 
-            print('RUN_OBJECTS', reader.tell())
+            # Objects
             self.object_count = reader.uint32LE()
             self.objects = []
             for _ in range(self.object_count):
                 self.objects.append(ZoneObject(reader))
-                break
 
             # TODO: Finish object notes
             print('END POS:', reader.tell())

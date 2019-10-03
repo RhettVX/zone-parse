@@ -48,6 +48,8 @@ class Layer:
             'min_elevation': self.min_elevation,
             'max_elevation': self.max_elevation,
             'min_alpha': self.min_alpha,
-            'flora_name': self.flora_name
+            'flora_name': self.flora_name,
+
+            'tints': [x.asdict() for x in self.tints]
         }
         return output

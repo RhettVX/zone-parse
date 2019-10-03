@@ -22,3 +22,14 @@ class Flora:
         self.unk_bool0 = reader.bool8()
         self.unk_float0 = reader.float32LE(_MAX_FLOAT)
         self.unk_float1 = reader.float32LE(_MAX_FLOAT)
+
+    def asdict(self):
+        output = {
+            'name': self.name,
+            'texture': self.texture,
+            'model': self.model,
+            'unk_bool0': self.unk_bool0,
+            'unk_float0': self.unk_float0,
+            'unk_float1': self.unk_float1
+        }
+        return output

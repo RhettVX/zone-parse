@@ -18,6 +18,8 @@ class Zone1:
     path: Path = field()
     name: str = field()
 
+    version: int = field()
+
     # TODO
     offsets: dict
 
@@ -49,7 +51,7 @@ class Zone1:
         """
         zone_dict = {
             'name': self.name,
-            'version': _VERSION,
+            'version': self.version,
             'quads_per_tile': self.quads_per_tile,
             'tile_size': self.tile_size,
             'tile_height': self.tile_height,
@@ -59,9 +61,12 @@ class Zone1:
             'start_y': self.start_y,
             'chunks_x': self.chunks_x,
             'chunks_y': self.chunks_y,
+            'eco_count': self.eco_count,
             'ecos': [x.asdict() for x in self.ecos],
+            'flora_count': self.flora_count,
             'floras': [x.asdict() for x in self.floras],
             # TODO: InvisWalls
+            'object_count': self.object_count,
             'objects': [x.asdict() for x in self.objects]
         }
 
@@ -74,7 +79,9 @@ class Zone1:
 
         with BinaryStructReader(self.path) as reader:
             assert reader.read(len(_MAGIC)) == _MAGIC, 'Invalid magic'
-            assert reader.uint32LE() == _VERSION, 'Invalid version'
+
+            self.version = reader.uint32LE()
+            # assert self.version == _VERSION, 'Invalid version'
 
             # Offset TODO
             # self.offsets = {

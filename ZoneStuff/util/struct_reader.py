@@ -2,6 +2,8 @@ from io import BufferedReader
 from pathlib import Path
 from struct import calcsize, unpack_from, Struct
 
+from .special_types import Vector4, Color4
+
 
 class BinaryStructReader(BufferedReader):
     """
@@ -58,6 +60,22 @@ class BinaryStructReader(BufferedReader):
         if round_max:
             return round(self._read_struct(self._float32LE), round_max)
         return self._read_struct(self._float32LE)
+
+    def vec4_float32LE(self, round_max=None) -> Vector4:
+        x = self.float32LE(round_max)
+        y = self.float32LE(round_max)
+        z = self.float32LE(round_max)
+        w = self.float32LE(round_max)
+
+        return Vector4(x, y, z, w)
+
+    def col4_uint8(self):
+        r = self.uint8()
+        g = self.uint8()
+        b = self.uint8()
+        a = self.uint8()
+
+        return Color4(r, g, b, a)
 
     def ztstring(self):
         return ''.join(iter(lambda: self.read(1).decode('utf-8'), '\x00'))

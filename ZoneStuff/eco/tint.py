@@ -1,31 +1,21 @@
 from dataclasses import dataclass, field
-from typing import Tuple
 
+from ..util.special_types import Color4
 from ..util.struct_reader import BinaryStructReader
 
 
 @dataclass()
 class Tint:
-    color_rgba: Tuple[int, int, int, int] = field()
+    color_rgba: Color4 = field()
     strength: int = field()
 
     def __init__(self, reader: BinaryStructReader):
-        r = reader.uint8()
-        g = reader.uint8()
-        b = reader.uint8()
-        a = reader.uint8()
-
-        self.color_rgba = (r, g, b, a)
+        self.color_rgba = reader.col4_uint8()
         self.strength = reader.uint32LE()
 
     def asdict(self):
         output = {
-            'color': {
-                'r': self.color_rgba[0],
-                'g': self.color_rgba[1],
-                'b': self.color_rgba[2],
-                'a': self.color_rgba[3]
-            },
+            'color': dict(self.color_rgba._asdict()),
             'strength': self.strength
         }
         return output

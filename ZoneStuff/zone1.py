@@ -5,6 +5,7 @@ from typing import List
 
 from .eco import Eco
 from .flora import Flora
+from .light import Light
 from .util.struct_reader import BinaryStructReader
 from .zone_object.zone_object import ZoneObject
 
@@ -43,6 +44,9 @@ class Zone1:
     object_count: int = field()
     objects: List[ZoneObject] = field()
 
+    light_count: int = field()
+    lights: List[Light] = field()
+
     def export_json(self, name: str, outdir: Path):
         """Exports a zone as json
 
@@ -67,7 +71,9 @@ class Zone1:
             'floras': [x.asdict() for x in self.floras],
             # TODO: InvisWalls
             'object_count': self.object_count,
-            'objects': [x.asdict() for x in self.objects]
+            'objects': [x.asdict() for x in self.objects],
+            'light_count': self.light_count,
+            'lights': [x.asdict() for x in self.lights]
         }
 
         with (outdir / name).open('w') as outfile:
@@ -103,21 +109,18 @@ class Zone1:
             self.chunks_y = reader.uint32LE()
 
             # Ecos
-            print('ECOS', reader.tell())
             self.eco_count = reader.uint32LE()
             self.ecos = []
             for _ in range(self.eco_count):
                 self.ecos.append(Eco(reader))
 
             # Floras
-            print('FLORAS', reader.tell())
             self.flora_count = reader.uint32LE()
             self.floras = []
             for _ in range(self.flora_count):
                 self.floras.append(Flora(reader))
 
             # TODO: Handle invisible walls when we find some
-            print('INVIS_WALLS', reader.tell())
             assert reader.uint32LE() == 0, 'There are invis walls here. Handle them'
 
             # Objects
@@ -125,6 +128,14 @@ class Zone1:
             self.objects = []
             for _ in range(self.object_count):
                 self.objects.append(ZoneObject(reader))
+
+            # Lights
+            self.light_count = reader.uint32LE()  # TODO
+            self.lights = []
+            for _ in range(self.light_count):
+                self.lights.append(Light(reader))
+                break
+
 
             # TODO: Finish object notes
             print('END POS:', reader.tell())

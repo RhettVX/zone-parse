@@ -1,3 +1,3 @@
-from .zone1 import Zone1
+from .zone import Zone
 
-__all__ = ['Zone1']
+__all__ = ['Zone']

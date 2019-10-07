@@ -21,6 +21,7 @@ class Eco:
 
     def asdict(self) -> Dict:
         output = {
+            'index': self.index,
             'texture_part': self.texture_part.asdict(),
             'flora_part': self.flora_part.asdict()
         }

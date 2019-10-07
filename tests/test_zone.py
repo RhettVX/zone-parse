@@ -1,10 +1,10 @@
 from pathlib import Path
 
-from ZoneStuff import Zone1
+from ZoneStuff import Zone
 
 
 def test_zone1():
-    test_zone = Zone1(Path('../examples/Tutorial.zone'))
+    test_zone = Zone(Path('../examples/Tutorial.zone'))
 
     assert test_zone.quads_per_tile == 64
     assert test_zone.tile_size == 64.0

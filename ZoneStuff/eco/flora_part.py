@@ -21,6 +21,7 @@ class FloraPart:
 
     def asdict(self):
         output = {
+            'layer_count': self.layer_count,
             'layers': [x.asdict() for x in self.layers]
         }
         return output

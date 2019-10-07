@@ -30,6 +30,7 @@ class ZoneObject:
             'actor_definition': self.actor_definition,
             'render_distance': self.render_distance,
 
+            'instance_count': self.instance_count,
             'instances': [x.asdict() for x in self.instances]
         }
         return output

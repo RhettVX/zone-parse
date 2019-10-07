@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from json import dumps
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 
 from .eco import Eco
 from .flora import Flora
@@ -10,19 +10,18 @@ from .util.struct_reader import BinaryStructReader
 from .zone_object.zone_object import ZoneObject
 
 _MAGIC = b'ZONE'
-_VERSION = 0x1
+# _VERSION = 0x1
 _MAX_FLOAT = 6
 
 
 @dataclass()
-class Zone1:
+class Zone:
     path: Path = field()
     name: str = field()
 
+    magic: bytes = field()
     version: int = field()
-
-    # TODO
-    offsets: dict
+    offsets: Dict[str, int] = field()
 
     quads_per_tile: int = field()
     tile_size: float = field()
@@ -47,6 +46,8 @@ class Zone1:
     light_count: int = field()
     lights: List[Light] = field()
 
+    unknowns: bytes = field()
+
     def export_json(self, name: str, outdir: Path):
         """Exports a zone as json
 
@@ -54,8 +55,10 @@ class Zone1:
         :param outdir: Path of output directory
         """
         zone_dict = {
+            'magic': ' '.join([f'{x:02x}' for x in self.magic]),
             'name': self.name,
             'version': self.version,
+            'offsets': self.offsets,
             'quads_per_tile': self.quads_per_tile,
             'tile_size': self.tile_size,
             'tile_height': self.tile_height,
@@ -73,7 +76,8 @@ class Zone1:
             'object_count': self.object_count,
             'objects': [x.asdict() for x in self.objects],
             'light_count': self.light_count,
-            'lights': [x.asdict() for x in self.lights]
+            'lights': [x.asdict() for x in self.lights],
+            'unknowns': ' '.join([f'{x:02}' for x in self.unknowns])
         }
 
         with (outdir / name).open('w') as outfile:
@@ -84,18 +88,21 @@ class Zone1:
         self.name = self.path.stem
 
         with BinaryStructReader(self.path) as reader:
-            assert reader.read(len(_MAGIC)) == _MAGIC, 'Invalid magic'
+            self.magic = reader.read(len(_MAGIC))
+            assert self.magic == _MAGIC, 'Invalid magic'
 
             self.version = reader.uint32LE()
-            # assert self.version == _VERSION, 'Invalid version'
+            print(f'VERSION:\t{self.version}')
 
-            # Offset TODO
-            # self.offsets = {
-            #     'ecos': reader.uint32LE(),
-            #     'floras': reader.uint32LE(),
-            #     'invis_walls': reader.uint32LE()
-            # }
-            reader.seek(4 * 6, 1)
+            # Offsets
+            self.offsets = {
+                'ecos': reader.uint32LE(),
+                'floras': reader.uint32LE(),
+                'invis_walls': reader.uint32LE(),
+                'objects': reader.uint32LE(),
+                'lights': reader.uint32LE(),
+                'unknowns': reader.uint32LE()
+            }
 
             self.quads_per_tile = reader.uint32LE()
             self.tile_size = reader.float32LE()
@@ -130,12 +137,10 @@ class Zone1:
                 self.objects.append(ZoneObject(reader))
 
             # Lights
-            self.light_count = reader.uint32LE()  # TODO
+            self.light_count = reader.uint32LE()
             self.lights = []
             for _ in range(self.light_count):
                 self.lights.append(Light(reader))
-                break
 
-
-            # TODO: Finish object notes
-            print('END POS:', reader.tell())
+            # Unknown
+            self.unknowns = reader.read()

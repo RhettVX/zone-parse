@@ -61,11 +61,11 @@ class BinaryStructReader(BufferedReader):
             return round(self._read_struct(self._float32LE), round_max)
         return self._read_struct(self._float32LE)
 
-    def vec4_float32LE(self, round_max=None) -> Vector4:
-        x = self.float32LE(round_max)
-        y = self.float32LE(round_max)
-        z = self.float32LE(round_max)
-        w = self.float32LE(round_max)
+    def vec4_float32LE(self, round_max=None, round_x=True, round_y=True, round_z=True, round_w=True) -> Vector4:
+        x = self.float32LE(round_max if round_x else None)
+        y = self.float32LE(round_max if round_y else None)
+        z = self.float32LE(round_max if round_z else None)
+        w = self.float32LE(round_max if round_w else None)
 
         return Vector4(x, y, z, w)
 

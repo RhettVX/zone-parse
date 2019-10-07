@@ -50,6 +50,7 @@ class Layer:
             'min_alpha': self.min_alpha,
             'flora_name': self.flora_name,
 
+            'tint_count': self.tint_count,
             'tints': [x.asdict() for x in self.tints]
         }
         return output

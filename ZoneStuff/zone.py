@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from json import dumps
 from pathlib import Path
+from sys import exit, stderr
 from typing import List, Dict
 
 from .eco import Eco
@@ -74,10 +75,11 @@ class Zone:
             'floras': [x.asdict() for x in self.floras],
             # TODO: InvisWalls
             'object_count': self.object_count,
-            'objects': [x.asdict() for x in self.objects],
-            'light_count': self.light_count,
-            'lights': [x.asdict() for x in self.lights],
-            'unknowns': ' '.join([f'{x:02}' for x in self.unknowns])
+            'objects': [x.asdict() for x in self.objects]
+            # FIXME
+            # 'light_count': self.light_count,
+            # 'lights': [x.asdict() for x in self.lights],
+            # 'unknowns': ' '.join([f'{x:02}' for x in self.unknowns])
         }
 
         with (outdir / name).open('w') as outfile:
@@ -88,59 +90,65 @@ class Zone:
         self.name = self.path.stem
 
         with BinaryStructReader(self.path) as reader:
-            self.magic = reader.read(len(_MAGIC))
-            assert self.magic == _MAGIC, 'Invalid magic'
+            try:
+                self.magic = reader.read(len(_MAGIC))
+                assert self.magic == _MAGIC, 'Invalid magic'
 
-            self.version = reader.uint32LE()
-            print(f'VERSION:\t{self.version}')
+                self.version = reader.uint32LE()
+                print(f'VERSION:\t{self.version}')
 
-            # Offsets
-            self.offsets = {
-                'ecos': reader.uint32LE(),
-                'floras': reader.uint32LE(),
-                'invis_walls': reader.uint32LE(),
-                'objects': reader.uint32LE(),
-                'lights': reader.uint32LE(),
-                'unknowns': reader.uint32LE()
-            }
+                # Offsets
+                self.offsets = {
+                    'ecos': reader.uint32LE(),
+                    'floras': reader.uint32LE(),
+                    'invis_walls': reader.uint32LE(),
+                    'objects': reader.uint32LE(),
+                    'lights': reader.uint32LE(),
+                    'unknowns': reader.uint32LE()
+                }
 
-            self.quads_per_tile = reader.uint32LE()
-            self.tile_size = reader.float32LE()
-            self.tile_height = reader.float32LE()
-            self.verts_per_tile = reader.uint32LE()
-            self.tiles_per_chunk = reader.uint32LE()
+                self.quads_per_tile = reader.uint32LE()
+                self.tile_size = reader.float32LE()
+                self.tile_height = reader.float32LE()
+                self.verts_per_tile = reader.uint32LE()
+                self.tiles_per_chunk = reader.uint32LE()
 
-            self.start_x = reader.int32LE()
-            self.start_y = reader.int32LE()
-            self.chunks_x = reader.uint32LE()
-            self.chunks_y = reader.uint32LE()
+                self.start_x = reader.int32LE()
+                self.start_y = reader.int32LE()
+                self.chunks_x = reader.uint32LE()
+                self.chunks_y = reader.uint32LE()
 
-            # Ecos
-            self.eco_count = reader.uint32LE()
-            self.ecos = []
-            for _ in range(self.eco_count):
-                self.ecos.append(Eco(reader))
+                # Ecos
+                self.eco_count = reader.uint32LE()
+                self.ecos = []
+                for _ in range(self.eco_count):
+                    self.ecos.append(Eco(reader))
 
-            # Floras
-            self.flora_count = reader.uint32LE()
-            self.floras = []
-            for _ in range(self.flora_count):
-                self.floras.append(Flora(reader))
+                # Floras
+                self.flora_count = reader.uint32LE()
+                self.floras = []
+                for _ in range(self.flora_count):
+                    self.floras.append(Flora(reader))
 
-            # TODO: Handle invisible walls when we find some
-            assert reader.uint32LE() == 0, 'There are invis walls here. Handle them'
+                # TODO: Handle invisible walls when we find some
+                assert reader.uint32LE() == 0, 'There are invis walls here. Handle them'
 
-            # Objects
-            self.object_count = reader.uint32LE()
-            self.objects = []
-            for _ in range(self.object_count):
-                self.objects.append(ZoneObject(reader))
+                # Objects
+                self.object_count = reader.uint32LE()
+                self.objects = []
+                for _ in range(self.object_count):
+                    self.objects.append(ZoneObject(reader))
 
-            # Lights
-            self.light_count = reader.uint32LE()
-            self.lights = []
-            for _ in range(self.light_count):
-                self.lights.append(Light(reader))
+                # # Lights FIXME
+                # self.light_count = reader.uint32LE()
+                # self.lights = []
+                # for _ in range(self.light_count):
+                #     self.lights.append(Light(reader))
+                #
+                # # Unknown
+                # self.unknowns = reader.read()
 
-            # Unknown
-            self.unknowns = reader.read()
+            except:  # HACK
+                print(f'[X] Failed at position {reader.tell():#x}', file=stderr)
+                breakpoint()
+                exit(1)
